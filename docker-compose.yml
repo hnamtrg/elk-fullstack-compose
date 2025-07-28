@@ -11,6 +11,8 @@ volumes:
     driver: local
   logstashdata01:
     driver: local
+  heartbeatdata01:
+    driver: local
 
 networks:
   default:
@@ -219,3 +221,28 @@ services:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
+
+  heartbeat01:
+    depends_on:
+      es01:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    image: docker.elastic.co/beats/heartbeat:${STACK_VERSION}
+    user: root
+    volumes:
+      - certs:/usr/share/heartbeat/certs
+      - heartbeatdata01:/usr/share/heartbeat/data
+      - "./heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro"
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://es01:9200
+      - KIBANA_HOSTS=https://kibana:5601
+    command:
+      - --strict.perms=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I --cacert /usr/share/heartbeat/certs/ca/ca.crt https://kibana:5601 | grep -q 'HTTP/1.1'"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
