@@ -13,6 +13,8 @@ volumes:
     driver: local
   heartbeatdata01:
     driver: local
+  packetbeatdata01:
+    driver: local
 
 networks:
   default:
@@ -243,6 +245,35 @@ services:
       - --strict.perms=false
     healthcheck:
       test: ["CMD-SHELL", "curl -s -I --cacert /usr/share/heartbeat/certs/ca/ca.crt https://kibana:5601 | grep -q 'HTTP/1.1'"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  packetbeat01:
+    depends_on:
+      es01:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    image: docker.elastic.co/beats/packetbeat:${STACK_VERSION}
+    user: root
+    network_mode: host
+    volumes:
+      - certs:/usr/share/packetbeat/certs
+      - packetbeatdata01:/usr/share/packetbeat/data
+      - "./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml:ro"
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://es01:9200
+      - KIBANA_HOSTS=https://kibana:5601
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command:
+      - --strict.perms=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --cacert /usr/share/packetbeat/certs/ca/ca.crt -u ${ELASTIC_USER}:${ELASTIC_PASSWORD} https://localhost:9200 | grep -q 'cluster_name'"]
       interval: 10s
       timeout: 10s
       retries: 120
