@@ -15,6 +15,8 @@ volumes:
     driver: local
   packetbeatdata01:
     driver: local
+  auditbeatdata01:
+    driver: local
 
 networks:
   default:
@@ -277,3 +279,32 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+
+  auditbeat01:
+    depends_on:
+      es01:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    image: docker.elastic.co/beats/auditbeat:${STACK_VERSION}
+    user: root
+    volumes:
+      - certs:/usr/share/auditbeat/certs
+      - auditbeatdata01:/usr/share/auditbeat/data
+      - "./auditbeat.yml:/usr/share/auditbeat/auditbeat.yml:ro"
+      - "/home/auditbeat:/hostfs/home/auditbeat"
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://es01:9200
+      - KIBANA_HOSTS=https://kibana:5601
+    command:
+      - --strict.perms=false
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --cacert /usr/share/auditbeat/certs/ca/ca.crt -u ${ELASTIC_USER}:${ELASTIC_PASSWORD} https://localhost:9200 | grep -q 'cluster_name'"]
+      interval: 10s
+      timeout: 10s
+      retries: 120 

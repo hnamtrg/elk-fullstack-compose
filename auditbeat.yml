@@ -1,0 +1,33 @@
+auditbeat.modules:
+- module: file_integrity
+  paths:
+    - /hostfs/home/auditbeat
+  recursive: true
+  scan_at_start: true
+  scan_rate_per_sec: 50 MiB
+  max_file_size: 100 MiB
+
+processors:
+  - add_host_metadata: ~
+  - add_fields:
+      fields:
+        audit_type: file
+      target: ''
+
+output.elasticsearch:
+  hosts: ${ELASTIC_HOSTS}
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
+  ssl:
+    certificate: "certs/es01/es01.crt"
+    certificate_authorities: "certs/ca/ca.crt"
+    key: "certs/es01/es01.key"
+
+setup.kibana:
+  host: ${KIBANA_HOSTS}
+  ssl:
+    certificate: "certs/es01/es01.crt"
+    certificate_authorities: "certs/ca/ca.crt"
+    key: "certs/es01/es01.key"
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
