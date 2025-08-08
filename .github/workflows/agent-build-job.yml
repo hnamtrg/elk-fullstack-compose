@@ -71,8 +71,12 @@ jobs:
           echo "repository_name=${{ inputs.repository_name }}" >> $GITHUB_ENV
           echo "image_prefix=${{ inputs.image_prefix }}" >> $GITHUB_ENV
 
-      - name: Debug - List workflow variables
+      - name: Build Docker image
         run: |
-          echo "docker_image_tag: ${{ env.docker_image_tag }}"
+          docker build -t ${{ env.docker_image_tag }} .
+        working-directory: ./Dockerfiles/agent
 
-      
+      - name: List Docker images
+        run: |
+          docker images
+        working-directory: ./Dockerfiles/agent
