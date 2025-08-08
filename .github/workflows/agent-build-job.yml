@@ -18,6 +18,21 @@ on:
         required: false
         type: boolean
         default: false
+      registry_id:
+        description: 'Registry ID for JFrog or other registry'
+        required: false
+        type: string
+        default: '201412352112'
+      repository_name:
+        description: 'Repository name for JFrog or other registry'
+        required: false
+        type: string
+        default: 'hc-datadog-agent'
+      image_prefix:
+        description: 'Prefix for the Docker image name'
+        required: false
+        type: string
+        default: '.dkr.ecr.us-east-1.amazonaws.com'
       
 defaults:
   run:
@@ -46,11 +61,18 @@ jobs:
           ls -al
         working-directory: ./Dockerfiles/agent
 
+      - name: Set up build variables
+        run: |
+          echo "docker_image_tag=${{ inputs.registry_id }}${{ inputs.image_prefix }}/${{ inputs.repository_name }}:${{ inputs.agent_version }}" >> $GITHUB_ENV
+          echo "target_branch=${{ inputs.target_branch }}" >> $GITHUB_ENV
+          echo "agent_version=${{ inputs.agent_version }}" >> $GITHUB_ENV
+          echo "jfrog_push=${{ inputs.jfrog_push }}" >> $GITHUB_ENV
+          echo "registry_id=${{ inputs.registry_id }}" >> $GITHUB_ENV
+          echo "repository_name=${{ inputs.repository_name }}" >> $GITHUB_ENV
+          echo "image_prefix=${{ inputs.image_prefix }}" >> $GITHUB_ENV
+
       - name: Debug - List workflow variables
         run: |
-          echo "Target branch: ${{ inputs.target_branch }}"
-          echo "Agent version: ${{ inputs.agent_version }}"
-          echo "JFrog push: ${{ inputs.jfrog_push }}"
+          echo "docker_image_tag: ${{ env.docker_image_tag }}"
 
-      - name: Debug - List checked out files
-        run: ls -al
+      
