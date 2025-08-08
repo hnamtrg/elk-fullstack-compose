@@ -27,7 +27,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout specified branch
+      # - name: Checkout specified branch
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: ${{ inputs.target_branch }}
+
+      - name: Checkout public Datadog Agent repo
         uses: actions/checkout@v4
         with:
+          repository: DataDog/datadog-agent
           ref: ${{ inputs.target_branch }}
+          path: Dockerfiles/agent
+
+      - name: Set working directory to ./Dockerfiles/agent
+        run: |
+          cd Dockerfiles/agent
+          echo "Current working directory: $(pwd)"
+          ls -al
+        working-directory: ./Dockerfiles/agent
+
+      - name: Debug - List workflow variables
+        run: |
+          echo "Target branch: ${{ inputs.target_branch }}"
+          echo "Agent version: ${{ inputs.agent_version }}"
+          echo "JFrog push: ${{ inputs.jfrog_push }}"
+
+      - name: Debug - List checked out files
+        run: ls -al
