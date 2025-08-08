@@ -76,10 +76,7 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t ${{ env.docker_image_tag }} .
-        working-directory: ./Dockerfiles/agent
+        working-directory: ./Dockerfiles/agent/Dockerfiles/agent
 
-# list docker image
       - name: List Docker images
-        run: |
-          docker images
-        working-directory: ./Dockerfiles/agent
+        run: docker images
