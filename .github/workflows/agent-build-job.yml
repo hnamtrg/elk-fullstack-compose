@@ -56,9 +56,12 @@ jobs:
 
       - name: Set working directory to ./Dockerfiles/agent
         run: |
-          cd Dockerfiles/agent
           echo "Current working directory: $(pwd)"
           ls -al
+        working-directory: ./Dockerfiles/agent
+
+      - name: List checked out files
+        run: ls -al
         working-directory: ./Dockerfiles/agent
 
       - name: Set up build variables
@@ -72,10 +75,10 @@ jobs:
           echo "image_prefix=${{ inputs.image_prefix }}" >> $GITHUB_ENV
 
       - name: Build Docker image
-        run: |
-          docker build -t ${{ env.docker_image_tag }} .
+        run: docker build -t ${{ env.docker_image_tag }} .
         working-directory: ./Dockerfiles/agent
 
+# list docker image
       - name: List Docker images
         run: |
           docker images
