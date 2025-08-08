@@ -1,0 +1,33 @@
+name: Build Datadog Agent Workflow
+description: Builds Datadog agent on specified branch with configurable options
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Target branch to checkout and build'
+        required: true
+        type: string
+      agent_version:
+        description: 'Version of the Datadog agent to build'
+        required: false
+        type: string
+        default: 'latest'
+      jfrog_push:
+        description: 'Enable JFrog push after build'
+        required: false
+        type: boolean
+        default: false
+      
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout specified branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_branch }}
