@@ -1,82 +1,12 @@
-name: Build Datadog Agent Workflow
-description: Builds Datadog agent on specified branch with configurable options
+name: Test workflow
+description: Test workflow
 
 on:
   workflow_dispatch:
-    inputs:
-      target_branch:
-        description: 'Target branch to checkout and build'
-        required: true
-        type: string
-      agent_version:
-        description: 'Version of the Datadog agent to build'
-        required: false
-        type: string
-        default: 'latest'
-      jfrog_push:
-        description: 'Enable JFrog push after build'
-        required: false
-        type: boolean
-        default: false
-      registry_id:
-        description: 'Registry ID for JFrog or other registry'
-        required: false
-        type: string
-        default: '201412352112'
-      repository_name:
-        description: 'Repository name for JFrog or other registry'
-        required: false
-        type: string
-        default: 'hc-datadog-agent'
-      image_prefix:
-        description: 'Prefix for the Docker image name'
-        required: false
-        type: string
-        default: '.dkr.ecr.us-east-1.amazonaws.com'
-      
-defaults:
-  run:
-    shell: bash
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout specified branch
-      #   uses: actions/checkout@v4
-      #   with:
-      #     ref: ${{ inputs.target_branch }}
-
-      - name: Checkout public Datadog Agent repo
-        uses: actions/checkout@v4
-        with:
-          repository: DataDog/datadog-agent
-          ref: ${{ inputs.target_branch }}
-          path: Dockerfiles/agent
-
-      - name: Set working directory to ./Dockerfiles/agent
-        run: |
-          echo "Current working directory: $(pwd)"
-          ls -al
-        working-directory: ./Dockerfiles/agent
-
-      - name: List checked out files
-        run: ls -al
-        working-directory: ./Dockerfiles/agent
-
-      - name: Set up build variables
-        run: |
-          echo "docker_image_tag=${{ inputs.registry_id }}${{ inputs.image_prefix }}/${{ inputs.repository_name }}:${{ inputs.agent_version }}" >> $GITHUB_ENV
-          echo "target_branch=${{ inputs.target_branch }}" >> $GITHUB_ENV
-          echo "agent_version=${{ inputs.agent_version }}" >> $GITHUB_ENV
-          echo "jfrog_push=${{ inputs.jfrog_push }}" >> $GITHUB_ENV
-          echo "registry_id=${{ inputs.registry_id }}" >> $GITHUB_ENV
-          echo "repository_name=${{ inputs.repository_name }}" >> $GITHUB_ENV
-          echo "image_prefix=${{ inputs.image_prefix }}" >> $GITHUB_ENV
-
-      - name: Build Docker image
-        run: docker build -t ${{ env.docker_image_tag }} .
-        working-directory: ./Dockerfiles/agent/Dockerfiles/agent
-
-      - name: List Docker images
-        run: docker images
+      - name: Print hello
+        run: echo "Hello from workflow_dispatch"
