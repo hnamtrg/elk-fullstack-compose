@@ -1,0 +1,52 @@
+name: Dependency Scanning
+
+on:
+  push:
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  dependency-scanning:
+    name: Dependency Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Manual Trivy Setup
+        uses: aquasecurity/setup-trivy@v0.2.0
+        with:
+          cache: true
+          version: latest
+
+      - name: Dependency Scanning with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          output: trivy-report.sarif
+          format: sarif
+          severity: 'CRITICAL'
+          vuln-type: 'os,library'
+          timeout: '10m'
+          scan-ref: .
+          exit-code: 1
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-report.sarif
+
+      - name: Upload Vulnerability Report as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy-report.sarif
+          retention-days: 2
