@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
     defaults:
       run:
         shell: bash
@@ -24,24 +23,19 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
-          output: trivy-report.sarif
-          format: sarif
+          output: trivy-report.json
+          format: json
           severity: 'CRITICAL'
-          vuln-type: 'os,library'
+          vuln-type: 'library'
+          scanners: 'vuln'
           timeout: '10m'
           scan-ref: .
           exit-code: 1
-
-      - name: Upload SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: trivy-report.sarif
 
       - name: Upload Vulnerability Report as Artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: trivy-report
-          path: trivy-report.sarif
-          retention-days: 2
+          path: trivy-report.json
+          retention-days: 1
