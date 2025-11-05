@@ -25,7 +25,7 @@ jobs:
           scan-type: "fs"
           output: trivy-report.json
           format: json
-          severity: 'CRITICAL, HIGH, MEDIUM'
+          severity: 'CRITICAL,HIGH,MEDIUM'
           vuln-type: 'library'
           scanners: 'vuln'
           timeout: '10m'
