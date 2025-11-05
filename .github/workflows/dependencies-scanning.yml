@@ -12,18 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: read
     defaults:
       run:
         shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Manual Trivy Setup
-        uses: aquasecurity/setup-trivy@v0.2.0
-        with:
-          cache: true
-          version: latest
 
       - name: Dependency Scanning with Trivy
         uses: aquasecurity/trivy-action@master
