@@ -31,6 +31,39 @@ jobs:
           timeout: '10m'
           scan-ref: .
           exit-code: 0
+  
+      - name: Generate Job Summary
+        if: always()
+        run: |
+          echo "# Dependency Vulnerability Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f trivy-report.json ]; then
+            # Count vulnerabilities
+            CRITICAL=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length')
+            HIGH=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length')
+            MEDIUM=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="MEDIUM")] | length')
+            TOTAL=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]?] | length')
+
+            echo "## Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **CRITICAL** | $CRITICAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| **HIGH** | $HIGH |" >> $GITHUB_STEP_SUMMARY
+            echo "| **MEDIUM** | $MEDIUM |" >> $GITHUB_STEP_SUMMARY
+            echo "| **TOTAL** | **$TOTAL** |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**No vulnerabilities found!**" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "**Scan failed or no report generated**" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload Vulnerability Report as Artifact
         uses: actions/upload-artifact@v4
