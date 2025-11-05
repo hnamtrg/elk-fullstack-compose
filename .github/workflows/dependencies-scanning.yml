@@ -58,9 +58,6 @@ jobs:
             echo "| **MEDIUM** | $MEDIUM |" >> $GITHUB_STEP_SUMMARY
             echo "| **TOTAL** | **$TOTAL** |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "**No vulnerabilities found!**" >> $GITHUB_STEP_SUMMARY
-            fi
           else
             echo "**Scan failed or no report generated**" >> $GITHUB_STEP_SUMMARY
           fi
