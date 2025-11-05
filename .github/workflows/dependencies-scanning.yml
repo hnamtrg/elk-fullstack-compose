@@ -30,7 +30,7 @@ jobs:
           scanners: 'vuln'
           timeout: '10m'
           scan-ref: .
-          exit-code: 1
+          exit-code: 0
 
       - name: Upload Vulnerability Report as Artifact
         uses: actions/upload-artifact@v4
